@@ -6,7 +6,7 @@ using UnityEngine.AI;
 public enum EnemyStates{GUARD,PATROL,CHASE,DEAD}
 [RequireComponent(typeof(NavMeshAgent))]
 
-public class EnemyController : MonoBehaviour
+public class EnemyController : MonoBehaviour, IEndGameObserver
 {
    private EnemyStates enemyStates;
    private NavMeshAgent agent;
@@ -42,6 +42,7 @@ public class EnemyController : MonoBehaviour
    bool isChase;
    bool isFollow;
    bool isDeath;
+   bool playerDead;
 
 
    void Awake()
@@ -59,6 +60,8 @@ public class EnemyController : MonoBehaviour
 
    void Start()
    {
+      //TODO:这里可能有问题
+      playerDead = false;
       if (isGuard)
       {
          enemyStates = EnemyStates.GUARD;
@@ -69,16 +72,35 @@ public class EnemyController : MonoBehaviour
       {
          enemyStates = EnemyStates.PATROL;
          //给于巡逻敌人初始移动点位
-         GetNewWayPoint();
+         GetNewWayPoint();    
       }
+       //FIXME:场景切换后修改
+      GameManager.Instance.AddObserver(this);
+      UnityEngine.Debug.Log ("已经加到名单");
+   }
+   /*
+    void OnEnable()
+    {
+       GameManager.Instance.AddObserver(this);
+    }
+   */
+   void OnDisable() 
+   {
+      //将敌人移除广播名单
+      if(!GameManager.IsInitialized) return;
+      GameManager.Instance.RemoveObserver(this);
    }
    void Update()
    {
       if(characterStats.CurrentHealth == 0)
          isDeath = true;
-    SwitchStates();
-    SwitchAnimation();
-    lastAttacktime -= Time.deltaTime;
+
+      if (!playerDead)
+      {
+         SwitchStates();
+         SwitchAnimation();
+         lastAttacktime -= Time.deltaTime;
+      }
    }
    void SwitchAnimation()
    {
@@ -268,5 +290,18 @@ public class EnemyController : MonoBehaviour
         targetStats.TakeDamage(characterStats,targetStats);
       }
     }
-   
+
+     public void EndNotify()
+    {
+        //获胜动画
+        //停止所有移动
+        //停止Agent
+         UnityEngine.Debug.Log ("已经收到玩家死亡讯息，开始执行庆祝操作");
+        anim.SetBool("Win", true);
+        playerDead = true;
+        isChase = false;
+        isWalk = false;
+        attackTarget = null;
+
+    }
 }

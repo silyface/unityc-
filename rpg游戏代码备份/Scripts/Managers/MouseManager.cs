@@ -6,9 +6,9 @@ using System;
 
 //[System.Serializable]
 //public class EventVector3: UnityEvent<Vector3> {}
-public class MouseManager : MonoBehaviour
+public class MouseManager : Singleton<MouseManager>
 {
-    public static MouseManager Instance;
+    //public static MouseManager Instance;
 
     public Texture2D point,doorway,attack,target,arrow;
     RaycastHit hitInfo;
@@ -16,13 +16,10 @@ public class MouseManager : MonoBehaviour
 
     public event Action<GameObject> OnEnemyClicked;
 
-    void Awake() 
+    protected override void Awake()
     {
-        if(Instance!=null)
-         Destroy(gameObject);
-
-        Instance=this;
-        
+        base.Awake();
+        //DontDestroyOnLoad(this);
     }
 
     void Update()

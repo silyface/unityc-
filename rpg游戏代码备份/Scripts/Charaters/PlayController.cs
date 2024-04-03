@@ -15,40 +15,52 @@ public class PlayController : MonoBehaviour
     private GameObject attackTarget;
 
     private float lastAttacktime;
-    private bool isDeath;
+    private bool isDead;
+    private float stopDistance;
 
     void Awake() 
     {
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         characterStats = GetComponent<CharacterStats>();
+
+         stopDistance = agent.stoppingDistance;
     }
+
+    
     void Start() 
     {
         MouseManager.Instance.OnMouseClicked+=MoveToTarget;
         MouseManager.Instance.OnEnemyClicked+=EventAttack;
-        characterStats.MaxHealth = 2;
-        
+  
+        GameManager.Instance.RigisterPlayerr(characterStats);
     }
 
-
-    void Update() 
+    void Update()
     {
-        isDeath = characterStats.CurrentHealth == 0;
-       SwitchAnimation() ;
+        isDead = characterStats.CurrentHealth == 0;
 
-       lastAttacktime -= Time.deltaTime;
+        if (isDead)
+            GameManager.Instance.NotifyObservers();
+
+        // KeyboardControl();
+        // ActionAttack();
+
+        SwitchAnimation();
+
+        lastAttacktime-= Time.deltaTime;
     }
 
     private void SwitchAnimation()
     {
         anim.SetFloat("Speed",agent.velocity.sqrMagnitude);
-        anim.SetBool("Death",isDeath);
+        anim.SetBool("Death",isDead);
     }
 
     public void MoveToTarget(Vector3 target)
     {
         StopAllCoroutines();
+        if(isDead) return;
         agent.isStopped = false;
         agent.destination=target;
        
@@ -56,6 +68,8 @@ public class PlayController : MonoBehaviour
     
     private void EventAttack(GameObject target)
     {
+        if(isDead) return;
+
       if(target!=null)
       {
         attackTarget = target;
@@ -80,8 +94,9 @@ public class PlayController : MonoBehaviour
         //attack
         if(lastAttacktime<0)
         {
-            anim.SetTrigger("Attack");
+           
             anim.SetBool("Critical",characterStats.isCritical);
+            anim.SetTrigger("Attack");
             //重置冷却时间
             lastAttacktime = characterStats.attackData.coolDown;
         }

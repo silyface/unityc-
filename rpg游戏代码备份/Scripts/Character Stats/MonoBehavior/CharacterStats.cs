@@ -53,6 +53,7 @@ public class CharacterStats: MonoBehaviour
 
       if(isCritical)
       {
+         //TODO:当前受击动作状态机有问题
          defender.GetComponent<Animator>().SetTrigger("Hit");
       }
       //TODO:update ui
