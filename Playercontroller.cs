@@ -5,6 +5,7 @@ using UnityEngine;
 public class Playercontroller : MonoBehaviour
 {
     public float moveSpeed = 5f; 
+    public float turnSpeed = 10f;
 
     private void Update()
     {
@@ -23,6 +24,13 @@ public class Playercontroller : MonoBehaviour
 
         Vector3 moveDoir = new Vector3(inputVector.x,0f,inputVector.y);
         transform.position+= moveDoir*moveSpeed*Time.deltaTime;
+
+        //物体旋转代码，可删
+        if(Input.GetKey(KeyCode.LeftArrow))
+             {transform.Rotate(Vector3.up, -turnSpeed * Time.deltaTime);}
+        if(Input.GetKey(KeyCode.RightArrow))
+            {transform.Rotate(Vector3.up, turnSpeed * Time.deltaTime);}
+
 
         Debug.Log(Time.deltaTime);
     
