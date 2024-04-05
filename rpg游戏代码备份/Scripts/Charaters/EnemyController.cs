@@ -5,6 +5,7 @@ using UnityEngine.AI;
 
 public enum EnemyStates{GUARD,PATROL,CHASE,DEAD}
 [RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(CharacterStats))]
 
 public class EnemyController : MonoBehaviour, IEndGameObserver
 {
@@ -13,7 +14,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
    private Animator anim;
    private Collider coll;
 
-   private CharacterStats characterStats;
+   protected CharacterStats characterStats;
 
    [Header("Basic Setting")]
    public float sightRadius;
@@ -21,7 +22,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
    public bool isGuard;
    public float speed;
 
-   private GameObject attackTarget;
+   protected GameObject attackTarget;
 
    public float lookAtTime;
 
@@ -206,7 +207,8 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
          break;
       case EnemyStates.DEAD:
          coll.enabled = false;
-         agent.enabled =false;
+         //agent.enabled =false;
+         agent.radius = 0;
          Destroy(gameObject,2f);
          break;
 
@@ -284,7 +286,7 @@ public class EnemyController : MonoBehaviour, IEndGameObserver
 
     void Hit()
     {
-      if (attackTarget != null)
+      if (attackTarget != null&& transform.IsFacingTarget(attackTarget.transform))
       {
         var targetStats = attackTarget.GetComponent<CharacterStats>();
         targetStats.TakeDamage(characterStats,targetStats);

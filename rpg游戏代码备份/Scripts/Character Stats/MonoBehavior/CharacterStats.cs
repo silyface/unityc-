@@ -6,13 +6,23 @@ using UnityEngine;
 
 public class CharacterStats: MonoBehaviour
 {
-   
+   public CharacterData_SO templateDate;
    public CharacterData_SO characterData;
 
    public AttackData_SO attackData;
 
    [HideInInspector]
    public bool isCritical;
+
+//
+   void Awake() 
+   {
+      if(templateDate != null)
+      characterData = Instantiate(templateDate);
+      
+   }
+
+//
 
    #region  Read from Data_SO
 
